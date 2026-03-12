@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: df092d3047fc78c4cbbe7bb0775272c8
+  productGUID: 0700f945a597e6441a8ca98bf085149f
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -924,10 +924,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 5e49e38d-6e3a-4079-b004-c4c8072239c9
+  cloudProjectId: d8a5d2b8-db86-4283-bad5-56b5b6b834e9
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Kobold
+  projectName: Kobold 2026-03-12_20-44-07
   organizationId: andrei676
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
