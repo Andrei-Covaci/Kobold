@@ -1,34 +1,42 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Kobold.FinalCharacterController;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
-
-namespace PlayerController.FinalCharacterController{
-    public class NewMonoBehaviourScript1 : MonoBehaviour, PlayerControls.IPlayerLocomotionMapActions
+namespace Kobold.FinalCharacterController
+{
+    [DefaultExecutionOrder(-2)]
+    public class PlayerLocomotionInput : MonoBehaviour, PlayerControls.IPlayerLocomotionMapActions
     {
-        public PlayerControls PlayerControls {get; private set; }
-        public Vector2 MovementInput {get; private set; }
+        public PlayerControls PlayerControls { get; private set; }
+        public Vector2 MovementInput { get; private set; }
+        public Vector2 LookInput { get; private set; }
 
-        private void OnEnable() 
+        private void OnEnable()
         {
-            PlayerControls = new PlayerControls(); 
+            PlayerControls = new PlayerControls();
             PlayerControls.Enable();
 
             PlayerControls.PlayerLocomotionMap.Enable();
-            PlayerControls.PlayerLocomotionMap.SetCallbacks(this);   
+            PlayerControls.PlayerLocomotionMap.SetCallbacks(this);
         }
 
-        private void OnDisable() 
+        private void OnDisable()
         {
             PlayerControls.PlayerLocomotionMap.Disable();
-            PlayerControls.PlayerLocomotionMap.RemoveCallbacks(this);    
+            PlayerControls.PlayerLocomotionMap.RemoveCallbacks(this);
         }
-       
-        public void OnNewaction(InputAction.CallbackContext context)
+
+        public void OnMovement(InputAction.CallbackContext context)
         {
             MovementInput = context.ReadValue<Vector2>();
             print(MovementInput);
+        }
+
+        public void OnLook(InputAction.CallbackContext context)
+        {
+            LookInput = context.ReadValue<Vector2>();
         }
     }
 }
