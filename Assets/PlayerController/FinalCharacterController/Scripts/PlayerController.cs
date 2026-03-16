@@ -20,7 +20,7 @@ namespace Kobold.FinalCharacterController
         [Header("Camera Settings")]
         public float lookSenseH = 0.1f;
         public float lookSenseV = 0.1f;
-        public float lookLimitV = 89f;
+        public float lookLimitV = 1f;
 
         private PlayerLocomotionInput _playerLocomotionInput;
         private Vector2 _cameraRotation = Vector2.zero;
@@ -56,7 +56,7 @@ namespace Kobold.FinalCharacterController
             _playerTargetRotation.x += transform.eulerAngles.x + lookSenseH * _playerLocomotionInput.LookInput.x;
             transform.rotation = Quaternion.Euler(0f, _playerTargetRotation.x, 0f);
 
-            _playerCamera.transform.rotation = Quaternion.Euler(0f, _cameraRotation.x, 0f);
+            _playerCamera.transform.rotation = Quaternion.Euler(_cameraRotation.y, _cameraRotation.x, 0f);
         }
     }
 }
