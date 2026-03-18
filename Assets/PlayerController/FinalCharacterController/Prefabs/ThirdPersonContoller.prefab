@@ -615,8 +615,10 @@ GameObject:
   - component: {fileID: 2041603561143281719}
   - component: {fileID: 5512366235409464614}
   - component: {fileID: 1174423368709484154}
+  - component: {fileID: 7759753241022564512}
   - component: {fileID: 7623149583957706554}
   - component: {fileID: 4492023432634109261}
+  - component: {fileID: 3417481671111344402}
   m_Layer: 0
   m_Name: ThirdPersonContoller
   m_TagString: Untagged
@@ -691,6 +693,19 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.00001
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &7759753241022564512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462626947173194050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48f7aa6e4af26d646a78b194b75e49d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Kobold.FinalCharacterController.PlayerState
+  <CurrentMovementState>k__BackingField: 0
 --- !u!114 &7623149583957706554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -723,6 +738,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 490eb3a69b8a8cf4b8d8cf676effd1b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kobold.FinalCharacterController.PlayerLocomotionInput
+--- !u!114 &3417481671111344402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462626947173194050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 876580429d0c31a4896b3df6ae7fc4ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
+  _animator: {fileID: 0}
 --- !u!1 &1471537398208106621
 GameObject:
   m_ObjectHideFlags: 0
