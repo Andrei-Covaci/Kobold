@@ -822,6 +822,10 @@ PrefabInstance:
       propertyPath: sprintAcceleration
       value: 50
       objectReference: {fileID: 0}
+    - target: {fileID: 7759753241022564512, guid: e6414d1738f9e4943a91610231b1e9e1, type: 3}
+      propertyPath: <CurrentPlayerMovementState>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8140073721159274850, guid: e6414d1738f9e4943a91610231b1e9e1, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.369
