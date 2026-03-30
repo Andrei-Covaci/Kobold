@@ -1,11 +1,12 @@
-using NUnit.Framework;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Kobold.FinalCharacterController
 {
     public class PlayerAnimation : MonoBehaviour
     {
-        [SerializeField] private Animator _animator; 
+        [SerializeField] private Animator _animator;
         [SerializeField] private float locomotionBlendSpeed = 4f;
 
         private PlayerLocomotionInput _playerLocomotionInput;
@@ -24,10 +25,6 @@ namespace Kobold.FinalCharacterController
 
         private Vector3 _currentBlendInput = Vector3.zero;
 
-        private float _sprintMaxBlendValue = 1.5f;
-        private float _runMaxBlendValue = 1f;
-        private float _walkMaxBlendValue = 0.5f;
-
         private void Awake()
         {
             _playerLocomotionInput = GetComponent<PlayerLocomotionInput>();
@@ -37,7 +34,7 @@ namespace Kobold.FinalCharacterController
 
         private void Update()
         {
-           UpdateAnimationState();
+            UpdateAnimationState();
         }
 
         private void UpdateAnimationState()
@@ -49,24 +46,21 @@ namespace Kobold.FinalCharacterController
             bool isFalling = _playerState.CurrentPlayerMovementState == PlayerMovementState.Falling;
             bool isGrounded = _playerState.InGroundedState();
 
-            bool isRunBlendValue = isRunning || isJumping || isFalling;
-            // Blend input for smoother transition
-            Vector2 inputTarget = isSprinting ? _playerLocomotionInput.MovementInput * _sprintMaxBlendValue: 
-                                  isRunBlendValue ? _playerLocomotionInput.MovementInput * _runMaxBlendValue:
-                                                    _playerLocomotionInput.MovementInput * _walkMaxBlendValue;
+            Vector2 inputTarget = isSprinting ? _playerLocomotionInput.MovementInput * 1.5f :
+                                  isRunning ? _playerLocomotionInput.MovementInput * 1f : _playerLocomotionInput.MovementInput * 0.5f;
+
             _currentBlendInput = Vector3.Lerp(_currentBlendInput, inputTarget, locomotionBlendSpeed * Time.deltaTime);
-            
+
             _animator.SetBool(isGroundedHash, isGrounded);
             _animator.SetBool(isIdlingHash, isIdling);
+            _animator.SetBool(isFallingHash, isFalling);
             _animator.SetBool(isJumpingHash, isJumping);
             _animator.SetBool(isRotatingToTargetHash, _playerController.IsRotatingToTarget);
-            _animator.SetBool(isFallingHash, isFalling);
+
             _animator.SetFloat(inputXHash, _currentBlendInput.x);
             _animator.SetFloat(inputYHash, _currentBlendInput.y);
             _animator.SetFloat(inputMagnitudeHash, _currentBlendInput.magnitude);
             _animator.SetFloat(rotationMismatchHash, _playerController.RotationMismatch);
         }
-
     }
 }
-

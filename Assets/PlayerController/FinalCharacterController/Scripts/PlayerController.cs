@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.XR;
 
 namespace Kobold.FinalCharacterController
 {
@@ -23,9 +22,10 @@ namespace Kobold.FinalCharacterController
         public float runSpeed = 4f;
         public float sprintAcceleration = 50f;
         public float sprintSpeed = 7f;
-        public float inAirAcceleration = 0.15f;
+        public float inAirAcceleration = 25f;
         public float drag = 20f;
         public float gravity = 25f;
+        public float terminalVelocity = 50f;
         public float jumpSpeed = 1.0f;
         public float movingThreshold = 0.01f;
 
@@ -43,6 +43,7 @@ namespace Kobold.FinalCharacterController
 
         private PlayerLocomotionInput _playerLocomotionInput;
         private PlayerState _playerState;
+
         private Vector2 _cameraRotation = Vector2.zero;
         private Vector2 _playerTargetRotation = Vector2.zero;
 
@@ -50,8 +51,8 @@ namespace Kobold.FinalCharacterController
         private bool _isRotatingClockwise = false;
         private float _rotatingToTargetTimer = 0f;
         private float _verticalVelocity = 0f;
-        private float _antiBump; 
-        private float _stepOfset;
+        private float _antiBump;
+        private float _stepOffset;
 
         private PlayerMovementState _lastMovementState = PlayerMovementState.Falling;
         #endregion
@@ -63,7 +64,7 @@ namespace Kobold.FinalCharacterController
             _playerState = GetComponent<PlayerState>();
 
             _antiBump = sprintSpeed;
-            _stepOfset = _characterController.stepOffset;
+            _stepOffset = _characterController.stepOffset;
         }
         #endregion
 
@@ -78,6 +79,7 @@ namespace Kobold.FinalCharacterController
         private void UpdateMovementState()
         {
             _lastMovementState = _playerState.CurrentPlayerMovementState;
+
             bool canRun = CanRun();
             bool isMovementInput = _playerLocomotionInput.MovementInput != Vector2.zero;             //order
             bool isMovingLaterally = IsMovingLaterally();                                            //matters
@@ -96,24 +98,24 @@ namespace Kobold.FinalCharacterController
             {
                 _playerState.SetPlayerMovementState(PlayerMovementState.Jumping);
                 _jumpedLastFrame = false;
-                _characterController.stepOffset = 0f; // Disable step offset while jumping to prevent getting stuck on geometry
+                _characterController.stepOffset = 0f;
             }
             else if ((!isGrounded || _jumpedLastFrame) && _characterController.velocity.y <= 0f)
             {
                 _playerState.SetPlayerMovementState(PlayerMovementState.Falling);
-                _jumpedLastFrame = false; 
+                _jumpedLastFrame = false;
                 _characterController.stepOffset = 0f;
             }
             else
             {
-                _characterController.stepOffset = _stepOfset; // Re-enable step offset
+                _characterController.stepOffset = _stepOffset;
             }
         }
 
         private void HandleVerticalMovement()
         {
             bool isGrounded = _playerState.InGroundedState();
-            
+
             _verticalVelocity -= gravity * Time.deltaTime;
 
             if (isGrounded && _verticalVelocity < 0)
@@ -129,6 +131,12 @@ namespace Kobold.FinalCharacterController
             {
                 _verticalVelocity += _antiBump;
             }
+
+            // Clamp at terminal velocity
+            if (Mathf.Abs(_verticalVelocity) > Mathf.Abs(terminalVelocity))
+            {
+                _verticalVelocity = -1f * Mathf.Abs(terminalVelocity);
+            }
         }
 
         private void HandleLateralMovement()
@@ -139,10 +147,11 @@ namespace Kobold.FinalCharacterController
             bool isWalking = _playerState.CurrentPlayerMovementState == PlayerMovementState.Walking;
 
             // State dependent acceleration and speed
-            float lateralAcceleration = isGrounded ? inAirAcceleration :
+            float lateralAcceleration = !isGrounded ? inAirAcceleration :
                                         isWalking ? walkAcceleration :
                                         isSprinting ? sprintAcceleration : runAcceleration;
-            float clampLateralMagnitude = isGrounded ? sprintSpeed :  
+
+            float clampLateralMagnitude = !isGrounded ? sprintSpeed :
                                           isWalking ? walkSpeed :
                                           isSprinting ? sprintSpeed : runSpeed;
 
@@ -156,26 +165,25 @@ namespace Kobold.FinalCharacterController
             // Add drag to player
             Vector3 currentDrag = newVelocity.normalized * drag * Time.deltaTime;
             newVelocity = (newVelocity.magnitude > drag * Time.deltaTime) ? newVelocity - currentDrag : Vector3.zero;
-            newVelocity = Vector3.ClampMagnitude(new Vector3(newVelocity.x , 0f , newVelocity.z ), clampLateralMagnitude);
+            newVelocity = Vector3.ClampMagnitude(new Vector3(newVelocity.x, 0f, newVelocity.z), clampLateralMagnitude);
             newVelocity.y += _verticalVelocity;
             newVelocity = !isGrounded ? HandleSteepWalls(newVelocity) : newVelocity;
 
             // Move character (Unity suggests only calling this once per tick)
             _characterController.Move(newVelocity * Time.deltaTime);
         }
+
         private Vector3 HandleSteepWalls(Vector3 velocity)
         {
             Vector3 normal = CharacterControllerUtils.GetNormalWithSphereCast(_characterController, _groundLayers);
             float angle = Vector3.Angle(normal, Vector3.up);
             bool validAngle = angle <= _characterController.slopeLimit;
 
-            if (!validAngle && _verticalVelocity <= 0f)
+            if (!validAngle && _verticalVelocity < 0f)
                 velocity = Vector3.ProjectOnPlane(velocity, normal);
 
             return velocity;
-            
         }
-
         #endregion
 
         #region Late Update Logic
@@ -251,6 +259,7 @@ namespace Kobold.FinalCharacterController
         private bool IsGrounded()
         {
             bool grounded = _playerState.InGroundedState() ? IsGroundedWhileGrounded() : IsGroundedWhileAirborne();
+
             return grounded;
         }
 
@@ -258,7 +267,8 @@ namespace Kobold.FinalCharacterController
         {
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - _characterController.radius, transform.position.z);
 
-            bool grounded = Physics.CheckSphere(spherePosition, _characterController.radius, _groundLayers, QueryTriggerInteraction.Ignore);  
+            bool grounded = Physics.CheckSphere(spherePosition, _characterController.radius, _groundLayers, QueryTriggerInteraction.Ignore);
+
             return grounded;
         }
 
