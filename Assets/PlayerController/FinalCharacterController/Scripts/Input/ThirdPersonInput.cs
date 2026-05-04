@@ -23,7 +23,7 @@ namespace Kobold.FinalCharacterController
         #region Startup
         private void Awake()
         {
-            _thirdPersonFollow = _virtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineThirdPersonFollow; if (_thirdPersonFollow != null) ;
+            _thirdPersonFollow = _virtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) as CinemachineThirdPersonFollow; if (_thirdPersonFollow != null);
         }
         private void OnEnable()
         {
